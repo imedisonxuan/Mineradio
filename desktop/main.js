@@ -470,13 +470,13 @@ try {
   console.warn('[CacheSettings] Chromium cache path fallback:', error.message);
 }
 
+const IS_MAC = process.platform === 'darwin';
 const ANGLE_BACKEND = process.platform === 'win32' ? 'd3d11' : 'metal';
 const CHROMIUM_SAFE_PERFORMANCE_SWITCHES = [
   ['autoplay-policy', 'no-user-gesture-required'],
   ['enable-gpu-rasterization'],
-  ['enable-oop-rasterization'],
-  ['enable-zero-copy'],
-  ['enable-accelerated-2d-canvas'],
+  // zero-copy / oop-rasterization corrupt translucent surfaces on macOS (IOSurface overlays)
+  ...(IS_MAC ? [] : [['enable-oop-rasterization'], ['enable-zero-copy'], ['enable-accelerated-2d-canvas']]),
   ...(process.platform === 'linux' ? [] : [['use-angle', ANGLE_BACKEND]]),
 ];
 const CHROMIUM_OPT_IN_PERFORMANCE_SWITCHES = [
